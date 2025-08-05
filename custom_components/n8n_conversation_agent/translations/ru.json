@@ -1,0 +1,13 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Агент разговоров n8n",
+                "description": "Введите URL вашего вебхука n8n.",
+                "data": {
+                    "webhook_url": "URL вебхука n8n"
+                }
+            }
+        }
+    }
+}

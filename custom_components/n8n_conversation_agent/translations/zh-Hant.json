@@ -1,0 +1,13 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "n8n 會話代理",
+                "description": "輸入您的 n8n webhook URL。",
+                "data": {
+                    "webhook_url": "n8n webhook URL"
+                }
+            }
+        }
+    }
+}
