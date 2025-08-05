@@ -1,0 +1,13 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "n8n Conversation Agent",
+                "description": "Enter the URL of your n8n webhook.",
+                "data": {
+                    "webhook_url": "n8n Webhook URL"
+                }
+            }
+        }
+    }
+}
