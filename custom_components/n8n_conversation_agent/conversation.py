@@ -19,8 +19,10 @@ class SimpleConversationResponse:
                 "extra_data": None
             }
         }
+
     def as_dict(self) -> dict:
         return {"speech": self.speech}
+
 
 class N8NConversationAgent(AbstractConversationAgent):
     def __init__(self, hass: HomeAssistant, webhook_url: str) -> None:
