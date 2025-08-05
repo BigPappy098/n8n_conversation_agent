@@ -1,7 +1,7 @@
 {
     "domain": "n8n_conversation_agent",
     "name": "n8n Conversation Agent",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "documentation": "https://github.com/BigPappy098/n8n_conversation_agent",
     "requirements": [],
     "dependencies": [
