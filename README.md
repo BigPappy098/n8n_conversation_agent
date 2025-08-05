@@ -36,7 +36,7 @@ This integration lets you set **n8n** as your Conversation Agent — so **every*
 1. Open **HACS** in Home Assistant.
 2. Go to **Integrations** → menu (⋮) → **Custom repositories**.
 3. Add:
-   - **Repository URL**: `https://github.com/YOUR_USERNAME/n8n_conversation_agent`
+   - **Repository URL**: `https://github.com/BigPappy098/n8n_conversation_agent`
    - **Category**: `Integration`
 4. Search for **n8n Conversation Agent** in HACS and install.
 5. **Restart Home Assistant**.
@@ -55,7 +55,7 @@ This integration lets you set **n8n** as your Conversation Agent — so **every*
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **n8n Conversation Agent**.
-3. Enter your **n8n Webhook URL** (e.g. `https://n8n.example.com/webhook/my_agent`).
+3. Enter your **n8n Webhook URL** (e.g. `https://n8n.example.com/webhook/n8n_conversation_agent`).
 4. Go to **Settings → Voice Assistants → Assist Pipelines** and select `n8n Conversation Agent` as your Conversation Agent.
 
 ---
