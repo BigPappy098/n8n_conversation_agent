@@ -1,16 +1,11 @@
 {
-    "domain": "n8n_conversation_agent",
-    "name": "n8n Conversation Agent",
-    "version": "1.0.4",
-    "documentation": "https://github.com/BigPappy098/n8n_conversation_agent",
-    "requirements": [],
-    "dependencies": [
-        "conversation"
-    ],
-    "codeowners": [
-        "@BigPappy098"
-    ],
-    "config_flow": true,
-    "iot_class": "cloud_polling",
-    "icon": "icon.png"
+  "domain": "n8n_conversation_agent",
+  "name": "n8n Conversation Agent",
+  "version": "1.1.0",
+  "dependencies": ["conversation"],
+  "codeowners": ["@BigPappy098"],
+  "config_flow": true,
+  "requirements": [],
+  "iot_class": "cloud_polling",
+  "platforms": ["conversation"]
 }
