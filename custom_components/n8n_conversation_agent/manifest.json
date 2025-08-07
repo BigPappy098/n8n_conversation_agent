@@ -1,11 +1,12 @@
 {
   "domain": "n8n_conversation_agent",
   "name": "n8n Conversation Agent",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "dependencies": ["conversation"],
   "codeowners": ["@BigPappy098"],
   "config_flow": true,
   "requirements": ["aiohttp"],
   "iot_class": "cloud_polling",
+  "platforms": ["conversation"],
   "voice_assistants": ["conversation"]
 }
