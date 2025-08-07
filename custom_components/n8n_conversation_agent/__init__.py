@@ -1,22 +1,17 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.components import conversation
+from homeassistant.helpers.typing import ConfigType
 
-from .agent import N8NConversationAgent
 from .const import DOMAIN
 
+PLATFORMS: list[str] = ["conversation"]
 
-async def async_setup(hass: HomeAssistant, config: dict):
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    webhook_url = entry.data["webhook_url"]
-    agent = N8NConversationAgent(hass, webhook_url)
-    conversation.async_set_agent(hass, entry, agent)
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
-    conversation.async_unset_agent(hass, entry)
-    return True
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
