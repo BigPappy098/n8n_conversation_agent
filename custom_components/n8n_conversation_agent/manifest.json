@@ -1,7 +1,7 @@
 {
     "domain": "n8n_conversation_agent",
     "name": "n8n Conversation Agent",
-    "version": "5.0.1",
+    "version": "5.0.0",
     "config_flow": true,
     "capabilities": ["conversation"],
     "dependencies": ["conversation"],
