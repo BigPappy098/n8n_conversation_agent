@@ -1,6 +1,6 @@
-import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+import voluptuous as vol
 from .const import DOMAIN
 
 class N8NConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
