@@ -34,8 +34,8 @@ class N8NConversationAgent(AbstractConversationAgent):
         return "Powered by n8n"
 
     @property
-def supported_languages(self) -> list[str]:
-    return [MATCH_ALL]
+    def supported_languages(self) -> list[str]:
+        return [MATCH_ALL]
 
     async def async_prepare(self, language: str | None = None) -> None:
         pass
