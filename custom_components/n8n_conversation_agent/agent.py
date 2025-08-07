@@ -1,0 +1,63 @@
+import aiohttp
+import logging
+from homeassistant.components.conversation import (
+    AbstractConversationAgent,
+    ConversationInput,
+    ConversationResult,
+)
+from homeassistant.const import MATCH_ALL
+from homeassistant.core import HomeAssistant
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class N8NConversationAgent(AbstractConversationAgent):
+    def __init__(self, hass: HomeAssistant, webhook_url: str) -> None:
+        self.hass = hass
+        self.webhook_url = webhook_url
+
+    @property
+    def attribution(self) -> str:
+        return "Powered by n8n"
+
+    @property
+    def supported_languages(self) -> list[str]:
+        return [MATCH_ALL]  # Supports all languages
+
+    async def async_prepare(self, language: str | None = None) -> None:
+        pass
+
+    async def async_process(self, input: ConversationInput) -> ConversationResult:
+        user_text = input.text
+        _LOGGER.debug(f"[n8n_agent] Sending to n8n: {user_text}")
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.webhook_url,
+                    json={"text": user_text},
+                    timeout=15,
+                ) as resp:
+                    data = await resp.json(content_type=None)
+                    _LOGGER.debug(f"[n8n_agent] Raw n8n JSON: {data}")
+
+                    response_text = data.get("response", "")
+
+                    if isinstance(response_text, dict):
+                        response_text = (
+                            response_text.get("content")
+                            or response_text.get("text")
+                            or str(response_text)
+                        )
+
+                    if not isinstance(response_text, str):
+                        response_text = str(response_text)
+
+                    if not response_text.strip():
+                        response_text = "Sorry, I didn't get a response from n8n."
+
+                    return ConversationResult(response=response_text)
+
+        except Exception as e:
+            _LOGGER.error(f"[n8n_agent] Error contacting n8n: {e}")
+            return ConversationResult(response="Sorry, I couldn't reach n8n.")
