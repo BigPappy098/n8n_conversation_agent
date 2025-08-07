@@ -1,26 +1,26 @@
-import logging
-from homeassistant.components import conversation
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.conversation import async_set_agent, async_unset_agent
+from .conversation import N8NConversationAgent
+from .const import DOMAIN
+import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = "n8n_conversation_agent"
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    return True  # rely on config flow
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up the N8N Conversation Agent integration from a config entry."""
-    # No platforms to set up; just indicate successful setup.
-    _LOGGER.debug("Setting up N8N Conversation Agent entry: %s", entry.title)
+    webhook_url = entry.data.get("webhook_url")
+    if not webhook_url:
+        _LOGGER.error("Missing webhook_url in config entry: %s", entry.entry_id)
+        return False
+    agent = N8NConversationAgent(hass, webhook_url)
+    async_set_agent(hass, entry, agent)
+    _LOGGER.warning("n8n Conversation Agent registered (entry_id=%s)", entry.entry_id)
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload the N8N Conversation Agent integration."""
-    _LOGGER.debug("Unloading N8N Conversation Agent entry: %s", entry.title)
-    # Unregister the conversation agent if registered
-    conversation.async_unset_agent(hass, entry)
+    async_unset_agent(hass, entry)
+    _LOGGER.warning("n8n Conversation Agent unloaded (entry_id=%s)", entry.entry_id)
     return True
-
-async def async_get_conversation_agent(hass: HomeAssistant, config_entry: ConfigEntry):
-    """Entry point for Assist to get the conversation agent instance."""
-    from .conversation import N8nConversationAgent
-    return N8nConversationAgent(hass, config_entry)
