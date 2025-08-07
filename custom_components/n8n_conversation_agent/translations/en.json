@@ -1,13 +1,23 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "n8n Conversation Agent",
-                "description": "Enter the URL of your n8n webhook.",
-                "data": {
-                    "webhook_url": "n8n Webhook URL"
-                }
-            }
+  "config": {
+    "step": {
+      "user": {
+        "title": "n8n Conversation Agent",
+        "description": "Enter the n8n Webhook URL below.",
+        "data": {
+          "webhook_url": "Webhook URL"
         }
+      }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Webhook URL",
+        "data": {
+          "webhook_url": "Webhook URL"
+        }
+      }
+    }
+  }
 }
