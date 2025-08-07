@@ -1,12 +1,12 @@
 {
   "domain": "n8n_conversation_agent",
-  "name": "n8n Conversation Agent",
-  "version": "2.5.0",
+  "name": "N8N Conversation Agent",
+  "version": "1.0.0",
+  "after_dependencies": ["assist_pipeline", "intent"],
   "dependencies": ["conversation"],
-  "codeowners": ["@BigPappy098"],
-  "config_flow": true,
-  "requirements": ["aiohttp"],
+  "codeowners": [],
+  "documentation": "https://github.com/BigPappy098/n8n_conversation_agent",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
-  "platforms": ["conversation"],
-  "voice_assistants": ["conversation"]
+  "config_flow": true
 }
