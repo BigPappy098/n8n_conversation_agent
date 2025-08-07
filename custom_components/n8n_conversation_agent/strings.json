@@ -1,13 +1,20 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "n8n Conversation Agent",
-                "description": "Enter the URL of your n8n webhook.",
-                "data": {
-                    "webhook_url": "n8n Webhook URL"
-                }
-            }
-        }
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect N8N Webhook",
+        "data": {
+          "webhook_url": "Webhook URL"
+        },
+        "description": "Enter the URL of the N8N webhook to handle conversation queries."
+      }
+    },
+    "error": {
+      "invalid_url": "Please enter a valid URL (must start with http:// or https://).",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This webhook is already configured."
     }
+  }
 }
