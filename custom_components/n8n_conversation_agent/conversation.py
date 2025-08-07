@@ -1,88 +1,83 @@
+import aiohttp
 import logging
-from typing import Literal
-
-from homeassistant.components import conversation
+from homeassistant.components.conversation import (
+    AbstractConversationAgent,
+    ConversationInput,
+    ConversationResult,
+)
 from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers import aiohttp_client, intent
-from homeassistant.exceptions import HomeAssistantError
-import homeassistant.helpers.device_registry as dr
-
-from . import DOMAIN
+from .const import DOMAIN
+from homeassistant.const import MATCH_ALL
 
 _LOGGER = logging.getLogger(__name__)
 
-class N8nConversationAgent(conversation.ConversationEntity):
-    """Conversation agent that forwards queries to an N8N webhook."""
+class SimpleConversationResponse:
+    """Minimal conversation response with both .speech and .as_dict() for HA."""
+    def __init__(self, text: str) -> None:
+        self.speech = {
+            "plain": {
+                "speech": text,
+                "extra_data": None
+            }
+        }
 
-    # This agent can control Home Assistant (allow Assist to forward commands)
-    _attr_supported_features = conversation.ConversationEntityFeature.CONTROL
+    def as_dict(self) -> dict:
+        return {"speech": self.speech}
 
-    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
-        """Initialize the N8N conversation agent."""
+class N8NConversationAgent(AbstractConversationAgent):
+    def __init__(self, hass: HomeAssistant, webhook_url: str) -> None:
         self.hass = hass
-        self._entry = config_entry
-        self.webhook_url = config_entry.data.get("webhook_url")
-        # Unique ID for the conversation agent entity
-        self._attr_unique_id = config_entry.entry_id
-        # Name of the agent (shown in UI dropdown)
-        self._attr_name = config_entry.title or "N8N Conversation"
-        # Mark all languages as supported
-        self._attr_supported_languages: list[str] | Literal["*"] = "*"
-        # Register a device in HA for this agent (optional, for device registry visibility)
-        self._attr_device_info = dr.DeviceInfo(
-            identifiers={(DOMAIN, config_entry.entry_id)},
-            name=config_entry.title or "N8N Conversation Agent",
-            manufacturer="N8N",
-            model="Conversation Webhook"
-        )
+        self.webhook_url = webhook_url
 
-    async def _async_handle_message(
-        self,
-        user_input: conversation.ConversationInput,
-        chat_log: conversation.ChatLog,
-    ) -> conversation.ConversationResult:
-        """Handle an incoming conversation text by calling the N8N webhook."""
-        query_text = user_input.text
-        _LOGGER.debug("Forwarding user query to N8N webhook: %s", query_text)
+    @property
+    def attribution(self) -> str:
+        return "Powered by n8n"
+
+    @property
+def supported_languages(self) -> list[str]:
+    return [MATCH_ALL]
+
+    async def async_prepare(self, language: str | None = None) -> None:
+        pass
+
+    async def async_process(self, input: ConversationInput) -> ConversationResult:
+        user_text = input.text
+        _LOGGER.warning(f"[n8n_agent] Sending to n8n: {user_text}")
+
         try:
-            # Make an HTTP POST request to the configured N8N webhook with the query
-            session = aiohttp_client.async_get_clientsession(self.hass)
-            resp = await session.post(self.webhook_url, json={
-                "query": query_text,
-                "conversation_id": user_input.conversation_id
-            })
-            if resp.status != 200:
-                _LOGGER.error("N8N webhook call failed with status %s", resp.status)
-                raise HomeAssistantError(f"Webhook response status: {resp.status}")
-            # Try to get response text (JSON or plain text)
-            try:
-                data = await resp.json(content_type=None)
-            except ValueError:
-                # If response is not JSON, use plain text
-                answer_text = await resp.text()
-            else:
-                # Handle JSON response structure
-                if isinstance(data, dict) and "answer" in data:
-                    answer_text = str(data["answer"])
-                elif isinstance(data, str):
-                    answer_text = data
-                else:
-                    # Fallback: convert entire JSON to string
-                    answer_text = str(data)
-            if not answer_text:
-                raise HomeAssistantError("Empty response from N8N webhook")
-        except Exception as err:
-            _LOGGER.error("Error in N8N conversation agent: %s", err)
-            # Raising HomeAssistantError will signal an "intent-failed" in pipeline
-            raise HomeAssistantError(f"N8N agent failure: {err}") from err
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.webhook_url,
+                    json={"text": user_text},
+                    timeout=15,
+                ) as resp:
+                    data = await resp.json(content_type=None)
+                    _LOGGER.warning(f"[n8n_agent] Raw n8n JSON: {data}")
 
-        # Create an intent response with the answer text
-        response = intent.IntentResponse(language=user_input.language)
-        response.async_set_speech(answer_text)
-        # Return the conversation result (no multi-turn support, so conversation_id=None)
-        return conversation.ConversationResult(
-            conversation_id=None,
-            response=response,
-            continue_conversation=False
-        )
+                    response_text = data.get("response", "")
+
+                    if isinstance(response_text, dict):
+                        _LOGGER.warning("[n8n_agent] 'response' is dict — flattening")
+                        response_text = (
+                            response_text.get("content")
+                            or response_text.get("text")
+                            or str(response_text)
+                        )
+
+                    if not isinstance(response_text, str):
+                        _LOGGER.warning("[n8n_agent] 'response' is not string — forcing str()")
+                        response_text = str(response_text)
+
+                    if not response_text.strip():
+                        _LOGGER.warning("[n8n_agent] Empty response from n8n, using fallback")
+                        response_text = "Sorry, I didn't get a response from n8n."
+
+                    _LOGGER.warning(f"[n8n_agent] Final response_text to HA: {response_text!r}")
+
+                    ha_response = SimpleConversationResponse(response_text)
+                    return ConversationResult(response=ha_response)
+
+        except Exception as e:
+            _LOGGER.error(f"[n8n_agent] Error contacting n8n: {e}")
+            ha_response = SimpleConversationResponse("Sorry, I couldn't reach n8n.")
+            return ConversationResult(response=ha_response)
