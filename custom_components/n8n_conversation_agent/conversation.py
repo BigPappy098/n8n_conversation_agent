@@ -1,12 +1,13 @@
-import aiohttp
 import logging
+import aiohttp
 from homeassistant.components.conversation import (
     AbstractConversationAgent,
     ConversationInput,
     ConversationResult,
 )
-from homeassistant.core import HomeAssistant
 from homeassistant.const import MATCH_ALL
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,7 +22,6 @@ class SimpleConversationResponse:
 
     def as_dict(self) -> dict:
         return {"speech": self.speech}
-
 
 class N8NConversationAgent(AbstractConversationAgent):
     def __init__(self, hass: HomeAssistant, webhook_url: str) -> None:
@@ -72,4 +72,11 @@ class N8NConversationAgent(AbstractConversationAgent):
 
         except Exception as e:
             _LOGGER.error(f"[n8n_agent] Error contacting n8n: {e}")
-            return ConversationResult(response=SimpleConversationResponse("Error talking to n8n."))
+            return ConversationResult(response=SimpleConversationResponse("Sorry, I couldn't reach n8n."))
+
+async def async_get_conversation_agent(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+) -> AbstractConversationAgent:
+    webhook_url = config_entry.data.get("webhook_url")
+    return N8NConversationAgent(hass, webhook_url)
