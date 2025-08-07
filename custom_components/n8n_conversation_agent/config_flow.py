@@ -1,7 +1,9 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+
 from .const import DOMAIN
+
 
 class N8NConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -25,6 +27,7 @@ class N8NConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry):
         return N8NOptionsFlow(config_entry)
 
+
 class N8NOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         self.config_entry = config_entry
@@ -41,7 +44,7 @@ class N8NOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema({
                 vol.Required(
                     "webhook_url",
-                    default=self.config_entry.data.get("webhook_url", "")
+                    default=self.config_entry.options.get("webhook_url") or self.config_entry.data.get("webhook_url", "")
                 ): str
             })
         )
