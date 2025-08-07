@@ -7,7 +7,6 @@ from homeassistant.components.conversation import (
 )
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
-from homeassistant.const import MATCH_ALL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +34,7 @@ class N8NConversationAgent(AbstractConversationAgent):
 
     @property
     def supported_languages(self) -> list[str]:
-        return [MATCH_ALL]
+        return ["en"]
 
     async def async_prepare(self, language: str | None = None) -> None:
         pass
